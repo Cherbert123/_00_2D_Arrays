@@ -49,6 +49,7 @@ public class PixelArtMaker implements MouseListener{
 		System.out.println(csp.getSelectedColor());
 		gp.clickPixel(e.getX(), e.getY());
 		gp.repaint();
+
 	}
 
 	@Override

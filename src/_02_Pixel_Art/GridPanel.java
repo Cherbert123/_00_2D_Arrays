@@ -3,11 +3,23 @@ package _02_Pixel_Art;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.Random;
 
 import javax.swing.JPanel;
 
-public class GridPanel extends JPanel{
+
+public class GridPanel extends JPanel implements Serializable{
 
 	private static final long serialVersionUID = 1L;
 	private int windowWidth;
@@ -16,6 +28,8 @@ public class GridPanel extends JPanel{
 	private int pixelHeight;
 	private int rows;
 	private int cols;
+	
+	private static final String DATA_FILE = "src/_02_Pixel_Art/saved.dat";
 	
 	//1. Create a 2D array of pixels. Do not initialize it yet.
 	Pixel[][] pixels;
@@ -43,6 +57,7 @@ public class GridPanel extends JPanel{
 				pixels[i][j] = new Pixel(i * pixelWidth,j * pixelHeight);
 			}
 		}
+		pixels = load();
 		
 	}
 	
@@ -55,6 +70,29 @@ public class GridPanel extends JPanel{
 		//   of the pixel that was clicked. *HINT* Use the pixel's dimensions.
 		Random random = new Random();
 		pixels[mouseX/pixelWidth][mouseY/pixelHeight].color = color;
+	}
+	
+	private static void save(Pixel[][] data) {
+		try (FileOutputStream fos = new FileOutputStream(new File(DATA_FILE)); ObjectOutputStream oos = new ObjectOutputStream(fos)) {
+			oos.writeObject(data);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private static Pixel[][] load() {
+		try (FileInputStream fis = new FileInputStream(new File(DATA_FILE)); ObjectInputStream ois = new ObjectInputStream(fis)) {
+			return (Pixel[][]) ois.readObject();
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		} catch (ClassNotFoundException e) {
+			// This can occur if the object we read from the file is not
+			// an instance of any recognized class
+			e.printStackTrace();
+			return null;
+		}
 	}
 	
 	@Override
@@ -70,5 +108,6 @@ public class GridPanel extends JPanel{
 				g.drawRect(pixels[i][j].x, pixels[i][j].y, pixelWidth, pixelHeight);
 			}
 		}
+		save(pixels);
 	}
 }
